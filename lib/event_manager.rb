@@ -42,6 +42,44 @@ def save_thank_you_letter(id, form_letter)
     end
 end
 
+def peak_registration_hours(contents)
+    hours = contents.reduce(Hash.new(0)) do |hours, row|
+        time = Time.parse(row[:regdate].split[1])
+        hour = time.hour
+        hours[hour] += 1
+        hours
+    end
+    hours_nums = hours.sort_by do |hour, num|
+        num
+    end
+
+    best_hours = ""
+    3.times do |i|
+        best_hours += "#{hours_nums[-1-i][0]}:00: #{hours_nums[-1-i][1]}\n"
+    end
+    return best_hours
+end
+
+def peak_registration_days(contents)
+    days = contents.reduce(Hash.new(0)) do |days, row|
+        date = row[:regdate].split[0]
+        date = Date.strptime(date, "%m/%d/%y")
+        weekday_num = date.wday
+        weekday = Date::DAYNAMES[weekday_num]
+        days[weekday] += 1
+        days
+    end
+    weekday_nums = days.sort_by do |weekday, num|
+        num
+    end
+
+    best_weekdays = ""
+    3.times do |i|
+        best_weekdays += "#{weekday_nums[-1-i][0]}: #{weekday_nums[-1-i][1]}\n"
+    end
+    best_weekdays
+end
+
 puts 'Event manager initialized!'
 
 contents = CSV.open(
@@ -71,27 +109,7 @@ contents.each do |row|
 end
 
 contents.rewind
-#registration_hours = contents.reduce(Hash.new(0)) do |hours, row|
-#    datetime = Time.parse(row[:regdate])
-#    hours[row[0]] = 1
-#    hours
-#end
+puts "3 best registration hours:\n#{peak_registration_hours(contents)}"
 
-def peak_registration_hours(contents)
-    hours = contents.reduce(Hash.new(0)) do |hours, row|
-        time = Time.parse(row[:regdate].split[1])
-        hour = time.hour
-        hours[hour] += 1
-        hours
-    end
-    hours_nums = hours.sort_by do |hour, num|
-        num
-    end
-
-    best_hours = ""
-    3.times do |i|
-        best_hours += "#{hours_nums[-1-i][0]}:00: #{hours_nums[-1-i][1]}\n"
-    end
-    return best_hours
-end
-puts "3 Best registration hours:\n#{peak_registration_hours(contents)}"
+contents.rewind
+puts "3 best week days:\n#{peak_registration_days(contents)}"
