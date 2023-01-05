@@ -69,3 +69,29 @@ contents.each do |row|
 
     save_thank_you_letter(id, form_letter)
 end
+
+contents.rewind
+#registration_hours = contents.reduce(Hash.new(0)) do |hours, row|
+#    datetime = Time.parse(row[:regdate])
+#    hours[row[0]] = 1
+#    hours
+#end
+
+def peak_registration_hours(contents)
+    hours = contents.reduce(Hash.new(0)) do |hours, row|
+        time = Time.parse(row[:regdate].split[1])
+        hour = time.hour
+        hours[hour] += 1
+        hours
+    end
+    hours_nums = hours.sort_by do |hour, num|
+        num
+    end
+
+    best_hours = ""
+    3.times do |i|
+        best_hours += "#{hours_nums[-1-i][0]}:00: #{hours_nums[-1-i][1]}\n"
+    end
+    return best_hours
+end
+puts "3 Best registration hours:\n#{peak_registration_hours(contents)}"
